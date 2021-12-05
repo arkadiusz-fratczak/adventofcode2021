@@ -74,16 +74,16 @@
 
 (defn parse-board [numbers]
   (->> numbers
-      (filter not-empty)
-      (map #(Integer/parseInt %))
-      ((fn [nbrs]
-         (let [all (set nbrs)
-               rows (partition 5 nbrs)
-               cols (apply map vector rows)]
-           {:all all
-            :rows rows
-            :cols cols
-            :rows-and-cols (concat (map set rows) (map set cols))})))))
+       (filter not-empty)
+       (map #(Integer/parseInt %))
+       ((fn [nbrs]
+          (let [all (set nbrs)
+                rows (partition 5 nbrs)
+                cols (apply map vector rows)]
+            {:all all
+             :rows rows
+             :cols cols
+             :rows-and-cols (concat (map set rows) (map set cols))})))))
 
 (defn parse-boards [data]
   (->> data

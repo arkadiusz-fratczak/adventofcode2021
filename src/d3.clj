@@ -46,11 +46,11 @@
 (defn answer []
   (let [d3 (read-data-safe "resources/d3.txt")
         gamma-rate (->> d3
-                         (apply map vector)
-                         (map frequencies)
-                         (map #(key (apply max-key val %)))
-                         (apply str)
-                         (#(Integer/parseInt % 2)))
+                        (apply map vector)
+                        (map frequencies)
+                        (map #(key (apply max-key val %)))
+                        (apply str)
+                        (#(Integer/parseInt % 2)))
         epsilon-rate (->> d3
                           (apply map vector)
                           (map frequencies)
