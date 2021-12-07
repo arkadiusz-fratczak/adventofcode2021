@@ -49,7 +49,7 @@
        (#(str/split % #","))
        (map #(Integer/parseInt %))))
 
-(defn mean [sorted-data]
+(defn median [sorted-data]
   (let [count (count sorted-data)
         middle (quot count 2)]
     (if (= 1 (rem count 2))
@@ -60,9 +60,9 @@
   (let [d7 (parse-data
              (read-data-safe "resources/d7.txt"))
         d7sorted (sort d7)
-        mean (mean d7sorted)]
+        median (median d7sorted)]
     (->> d7
-         (map #(Math/abs (- mean %)))
+         (map #(Math/abs (- median %)))
          (reduce +))))
 
 ;--- Part Two ---
