@@ -188,8 +188,7 @@
                  six   "6"
                  seven "7"
                  eight "8"
-                 nine  "9"
-                 }]
+                 nine  "9"}]
     (->> digits
          (map #(get mapping %))
          (apply str)

@@ -102,10 +102,10 @@
 
 (defn pre-compute-for-0 [days]
   (reduce
-    (fn [acc day]
-      (assoc acc day (count-spawned day acc)))
-    {}
-    (range days)))
+   (fn [acc day]
+     (assoc acc day (count-spawned day acc)))
+   {}
+   (range days)))
 
 (defn count-shoal [fishes days pre-computed]
   (+ (count fishes) (reduce +' (map #(count-spawned (- days %) pre-computed) fishes))))

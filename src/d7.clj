@@ -58,7 +58,7 @@
 
 (defn answer []
   (let [d7 (parse-data
-             (read-data-safe "resources/d7.txt"))
+            (read-data-safe "resources/d7.txt"))
         d7sorted (sort d7)
         median (median d7sorted)]
     (->> d7
@@ -109,5 +109,5 @@
 
 (defn answer2 []
   (let [d7 (parse-data
-             (read-data-safe "resources/d7.txt"))]
+            (read-data-safe "resources/d7.txt"))]
     (overall-cost d7)))
