@@ -98,7 +98,7 @@
 (defn answer []
   (let [d14 (parse (read-data-safe "resources/d14.txt"))]
     (->> d14
-         (#(perform-steps (:template %) (:rules %) 10))
+         (#(perform-steps (:template %) (:rules %) 20))
          frequencies
          vals
          sort
@@ -113,42 +113,28 @@
 ;Apply 40 steps of pair insertion to the polymer template and find the most and least common elements in the result. What do you get if you take the quantity of the most common element and subtract the quantity of the least common element?
 
 
-(defn compute-step10-for-rules [rules]
+(defn compute-N-step-for-rules [rules nstep]
   (->> rules
        keys
-       (map #(hash-map % (perform-steps % rules 10)))
+       (map #(let [stepN (perform-steps % rules nstep)]
+               {% {:t stepN
+                   :f (frequencies stepN)}}))
        (apply merge)))
 
-(defn perform-10steps [template rules-step10]
-  ;(loop [n 1
-  ;       t template
-  ;       f {}]
-  ;  (if (<= n 0)
-  ;    f
-  ;    (let [partitions (map #(apply str %) (partition 2 1 template))]
-  ;      )))
-  (->> template
+(defn perform-N-steps [template rules-n-step]
+  (->> (or (:t template) template)
        (partition 2 1)
-       (map #(get rules-step10 (apply str %)))
-       ;(reduce (fn [p1 p2] {:t (apply str (:t p1) (next (:t p2)))
-       ;                     :f (merge-with + (:f p1) (update (:f p2) (first (:t p2)) dec))}))
-       ;(apply str)
-       ))
+       (map #(get rules-n-step (apply str %)))))
 
 (defn answer2 []
   (let [d14 (parse (read-data-safe "resources/d14.txt"))
-        rules-step10 (compute-step10-for-rules (:rules d14))]
-    (->> "SB"
-         (#(perform-10steps % rules-step10))
-         (map #(perform-10steps % rules-step10))
+        rules-step20 (compute-N-step-for-rules (:rules d14) 20)]
+    (->> (:template d14)
+         (#(perform-N-steps % rules-step20))
+         (map #(perform-N-steps % rules-step20))
          flatten
-         (map #(perform-10steps % rules-step10))
-         flatten
-         (map #(perform-10steps % rules-step10))
-         flatten
-         (apply concat)
-         frequencies
-         ;vals
-         ;sort
-         ;(#(- (last %) (first %)))
-         )))
+         (reduce (fn [acc p1] (merge-with + acc (update (:f p1) (first (:t p1)) dec)))
+                 {})
+         vals
+         sort
+         (#(- (last %) (first %))))))
