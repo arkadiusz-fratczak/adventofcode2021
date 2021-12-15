@@ -115,7 +115,13 @@
 ;The entire cave is actually five times larger in both dimensions than you thought; the area you originally scanned is just one tile in a 5x5 tile area that forms the full map. Your original map tile repeats to the right and downward; each time the tile repeats to the right or downward, all of its risk levels are 1 higher than the tile immediately up or left of it. However, risk levels above 9 wrap back around to 1. So, if your original map had some position with a risk level of 8, then that same position on each of the 25 total tiles would be as follows:
 
 (defn grid [row col grid0]
-  (map #(+ row col %) grid0))
+  (mapv #(if (> % 9) (- % 9) %) grid0))
+
+(defn shortest-path-to-border [path-costs grid-size]
+  (apply merge
+         (map #(hash-map % (get path-costs %))
+       (concat (range (dec grid-size) (* grid-size grid-size) grid-size)
+               (range (* (dec grid-size) grid-size) (* grid-size grid-size))))))
 
 (defn answer2 []
   (let [d15 (parse (read-data-safe "resources/d15.txt"))
