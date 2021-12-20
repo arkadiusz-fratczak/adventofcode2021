@@ -108,7 +108,7 @@
             _ (println (count add-beacons) (count (:b new-m)) (count new-others))]
         (recur new-m new-others)))))
 
-(defn answer []
+(defn answer-part-1 []
   (let [d19 (parse (read-data "resources/d19.txt"))
         first-satellite (first d19)
         other-satellites (rest d19)]
@@ -144,7 +144,7 @@
      (Math/abs (- y2 y1))
      (Math/abs (- z2 z1))))
 
-(defn answer2 []
+(defn answer-part-2 []
   (let [d19 (parse (read-data "resources/d19.txt"))
         first-satellite (first d19)
         other-satellites (rest d19)

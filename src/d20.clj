@@ -91,7 +91,7 @@
      :inf  new-inf
      :size new-size}))
 
-(defn answer []
+(defn answer-part-1 []
   (let [d20 (parse (read-data-safe "resources/d20.txt"))]
     (->> d20
          (#(nth (iterate step %) 2))
@@ -99,7 +99,7 @@
          flatten
          frequencies)))
 
-(defn answer2 []
+(defn answer-part-2 []
   (let [d20 (parse (read-data-safe "resources/d20.txt"))]
     (->> d20
          (#(nth (iterate step %) 50))
