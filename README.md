@@ -1,5 +1,6 @@
-###Advent of code 2021
-URL: https://adventofcode.com/2021|https://adventofcode.com/2021)
+**Advent of code 2021**
+
+URL: https://adventofcode.com/2021
 
 Day  1: [puzzle](https://adventofcode.com/2021/day/1) [solution](src/d1.clj)  
 Day  2: [puzzle](https://adventofcode.com/2021/day/2) [solution](src/d2.clj)  
