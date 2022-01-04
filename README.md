@@ -26,4 +26,5 @@ Day 21: [puzzle](https://adventofcode.com/2021/day/21) [solution](src/d21.clj)
 Day 22: [puzzle](https://adventofcode.com/2021/day/22) [solution](src/d22.clj)  
 Day 23: [puzzle](https://adventofcode.com/2021/day/23) [solution](src/d23.clj)  
 Day 24: [puzzle](https://adventofcode.com/2021/day/24) [solution](src/d24.clj)  
+Day 25: [puzzle](https://adventofcode.com/2021/day/25) [solution](src/d25.clj)  
 
