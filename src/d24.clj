@@ -26,7 +26,7 @@
 (defn inp [args acc]
   (let [data (:data acc)]
     (assoc acc (first args) (first data)
-               :data (rest data))))
+           :data (rest data))))
 
 (defn add [[a b] acc]
   (update acc a + (or (get acc b) b)))
@@ -42,37 +42,66 @@
 
 (defn eql [[a b] acc]
   (assoc acc a
-             (if (= (get acc a) (or (get acc b) b))
-               1
-               0)))
+         (if (= (get acc a) (or (get acc b) b))
+           1
+           0)))
 
-(defn alu [ins data]
+(defn alu [ins state]
   (reduce
-    (fn [acc in]
-      (case (first in)
-        :inp (inp (last in) acc)
-        :add (add (last in) acc)
-        :mul (mul (last in) acc)
-        :div (div (last in) acc)
-        :mod (modulo (last in) acc)
-        :eql (eql (last in) acc)))
-    {:w 0
-     :x 0
-     :y 0
-     :z 0
-     :data data}
-    ins))
+   (fn [acc in]
+     (case (first in)
+       :inp (inp (last in) acc)
+       :add (add (last in) acc)
+       :mul (mul (last in) acc)
+       :div (div (last in) acc)
+       :mod (modulo (last in) acc)
+       :eql (eql (last in) acc)))
+   state
+   ins))
 
-(defn model-number-vec [nr]
-  (->> nr
-       str
-       (map #(Integer/parseInt (str %)))))
+(defn base-state [data]
+  {:w    0
+   :x    0
+   :y    0
+   :z    0
+   :data data})
 
-(def model-numbers
-  (->> (range 99999999999999 11111111111111 -1)
-       (map #(model-number-vec %))
-       (filter #(not (some zero? %)))))
+(defn group-ins [ins]
+  (->> ins
+       (reduce
+        (fn [acc ins]
+          (if (= :inp (first ins))
+            (conj acc [ins])
+            (conj (pop acc) (conj (peek acc) ins))))
+        [])))
 
-(defn answer-for-part-1 []
-  (let [d24 (parse (read-data "resources/d24.txt"))]
-    (first (filter #(= 0 (:z (alu d24 %))) model-numbers))))
+(defn add-digit [numbers]
+  (if (empty? numbers)
+    (map vector (range 1 10))
+    (for [nr numbers
+          d (range 1 10)]
+      (conj nr d))))
+
+(defn some-variable-zero? [state]
+  (some zero? [(:x state) (:y state) (:z state)]))
+
+(defn run-monad
+  ([ins-set]
+   (run-monad ins-set (add-digit [])))
+  ([ins-set numbers]
+   (let [input-size (count (first numbers))
+         new-ins-set (apply concat (take input-size ins-set))
+         filtered-numbers (filterv #(some-variable-zero? (alu new-ins-set (base-state %))) numbers)
+         _ (println "lvl:" input-size "nbrs-size:" (count numbers) "filtered-nbrs-size:" (count filtered-numbers))]
+     (if (< 13 input-size)
+       filtered-numbers
+       (if (empty? filtered-numbers)
+         (recur ins-set (add-digit numbers))
+         (recur ins-set (add-digit filtered-numbers)))))))
+
+(defn answer-for-part-1-and-2 []
+  (let [d24 (parse (read-data "resources/d24.txt"))
+        ins-set (group-ins d24)
+        valid-numbers (time (run-monad ins-set))]
+    [(apply str (last valid-numbers))
+     (apply str (first valid-numbers))]))
