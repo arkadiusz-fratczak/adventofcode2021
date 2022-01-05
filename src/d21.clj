@@ -46,55 +46,58 @@
         r (simulate-game game 1000)]
     (* (:r r) (min (:s1 r) (:s2 r)))))
 
-(def dice-results-for-single-turn
+(def quantum-dice
   (frequencies
    (for [throw-1 [1 2 3]
          throw-2 [1 2 3]
          throw-3 [1 2 3]]
      (+ throw-1 throw-2 throw-3))))
 
-(defn pos-and-score-for-single-turn [{:keys [p s]} old-freq]
-  (map (fn [[k v]] (let [np (new-position p k)]
-                     {{:p np :s (+ s np)} (* old-freq v)}))
-       dice-results-for-single-turn))
+(defn roll-quantum-dice [[board multiverses] player-key]
+  (map (fn [[roll mv]]
+         (let [player-pos (new-position (-> board player-key :pos) roll)
+               player-score (+ (-> board player-key :score) player-pos)]
+           {(merge board
+                   {player-key {:pos player-pos
+                                :score player-score}}) (*' multiverses mv)}))
+       quantum-dice))
 
-(defn qround [player]
-  (if (not-empty (:pos-and-score-freq player))
-    (assoc player :pos-and-score-freq
-           (reduce
-            (fn [acc ps]
-              (apply merge-with +
-                     acc
-                     (pos-and-score-for-single-turn (key ps) (val ps))))
-            {}
-            (:pos-and-score-freq player)))
-    (assoc player :pos-and-score-freq
-           (apply merge-with + (pos-and-score-for-single-turn {:p (:base-pos player)
-                                                               :s 0}
-                                                              1)))))
+(defn quantum-round [multiverse-boards player-key]
+  (reduce
+   (fn [new-multiverse-boards multi-board]
+     (apply merge-with +'
+            new-multiverse-boards
+            (roll-quantum-dice multi-board player-key)))
+   {}
+   multiverse-boards))
 
-(defn count-wins [player]
-  (let [wins (filter (fn [[{:keys [_ s]} _]] (>= s 21)) (:pos-and-score-freq player))
-        wins-count (apply + (map val wins))
-        new-pos-and-score-freq (apply dissoc (:pos-and-score-freq player) (map key wins))]
-    {:base-pos (:base-pos player)
-     :pos-and-score-freq new-pos-and-score-freq
-     :wins (+ (:wins player) wins-count)}))
+(defn separate-map [pred m]
+  ((juxt (comp (partial into {}) filter) (comp (partial into {}) remove)) pred m))
 
-(defn qsimulate [game]
-  (let [p1 (count-wins (qround (:p1 game)))
-        p2 (count-wins (qround (:p2 game)))]
-    (cond
-      (empty? (:pos-and-score-freq p1)) {:p1 p1 :p2 (:p2 game)}
-      (empty? (:pos-and-score-freq p2)) {:p1 p1 :p2 p2}
-      :else (recur {:p1 p1 :p2 p2}))))
+(defn count-wins [game new-multiverse-boards player-key]
+  (let [[boards-to-remove boards-to-keep] (separate-map #(< 20 (get-in (key %) [player-key :score]))
+                                                        new-multiverse-boards)
+        wins (apply + (map val boards-to-remove))
+        player-wins-key (keyword (str (name player-key) "-wins"))]
+    (assoc
+     (update game player-wins-key +' wins)
+     :boards boards-to-keep)))
+
+(defn quantum-simulate [game]
+  (let [boards-after-p1-move (quantum-round (:boards game) :p1)
+        game-after-p1-move (count-wins game boards-after-p1-move :p1)
+        boards-after-p2-move (quantum-round (:boards game-after-p1-move) :p2)
+        game-after-p2-move (count-wins game-after-p1-move boards-after-p2-move :p2)]
+    (if (empty? (:boards game-after-p2-move))
+      game-after-p2-move
+      (recur game-after-p2-move))))
 
 (defn answer-for-part-2 []
-  (let [game {:p1 {:base-pos           1
-                   :pos-and-score-freq {}
-                   :wins               0}
-              :p2 {:base-pos           3
-                   :pos-and-score-freq {}
-                   :wins               0}}
-        end-game (qsimulate game)]
-    (max (-> end-game :p1 :wins) (-> end-game :p2 :wins))))
+  (let [game {:p1-wins 0
+              :p2-wins 0
+              :boards {{:p1 {:pos 1
+                             :score 0}
+                        :p2 {:pos 3
+                             :score 0}} 1}}
+        end-game (quantum-simulate game)]
+    (max (:p1-wins end-game) (:p2-wins end-game))))
